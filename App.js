@@ -1,47 +1,75 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- * @flow
- */
+import React from 'react'
+import { TouchableHighlight, View, Text, StyleSheet } from 'react-native'
 
-import React, { Component } from 'react';
-import {
-  Platform,
-  StyleSheet,
-  Text,
-  View
-} from 'react-native';
+import { connect } from 'react-redux'
+import { fetchPeopleFromAPI } from './actions'
 
-const instructions = Platform.select({
-  ios: 'Press Cmd+R to reload,\n' +
-    'Cmd+D or shake for dev menu',
-  android: 'Double tap R on your keyboard to reload,\n' +
-    'Shake or press menu button for dev menu',
-});
+let styles
 
-type Props = {};
-export default class App extends Component<Props> {
-  render() {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.welcome}>
-          Garez on its first step!
-        </Text>
-      </View>
-    );
+const App = (props) => {
+  const {
+    container,
+    text,
+    button,
+    buttonText
+  } = styles
+  const { people, isFetching } = props.people;
+  return (
+    <View style={container}>
+      <Text style={text}>Redux Example</Text>
+      <TouchableHighlight style={button} onPress={() => props.getPeople()}>
+        <Text style={buttonText}>Load People</Text>
+      </TouchableHighlight>
+      {
+        isFetching && <Text>Loading</Text>
+      }
+      {
+        people.length ? (
+          people.map((person, i) => {
+            return <View key={i} >
+              <Text>Name: {person.name}</Text>
+              <Text>Birth Year: {person.birth_year}</Text>
+            </View>
+          })
+        ) : null
+      }
+    </View>
+  )
+}
+
+styles = StyleSheet.create({
+  container: {
+    marginTop: 100,
+    paddingLeft: 20,
+    paddingRight: 20
+  },
+  text: {
+    textAlign: 'center'
+  },
+  button: {
+    height: 60,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#0b7eff'
+  },
+  buttonText: {
+    color: 'white'
+  }
+})
+
+function mapStateToProps (state) {
+  return {
+    people: state.people
   }
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
-  },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
+function mapDispatchToProps (dispatch) {
+  return {
+    getPeople: () => dispatch(fetchPeopleFromAPI())
   }
-});
+}
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(App)
